@@ -8,8 +8,15 @@ from nltk.tokenize import word_tokenize
 app = Flask(__name__)
 
 # Load model and vectorizer
-model = joblib.load('../model/spam_model.pkl')
-tfidf = joblib.load('../model/tfidf_vectorizer.pkl')
+import os
+import nltk
+nltk.download('stopwords', quiet=True)
+nltk.download('punkt', quiet=True)
+nltk.download('punkt_tab', quiet=True)
+
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+model = joblib.load(os.path.join(BASE_DIR, 'model', 'spam_model.pkl'))
+tfidf = joblib.load(os.path.join(BASE_DIR, 'model', 'tfidf_vectorizer.pkl'))
 
 # Preprocessing — same function as notebook
 ps = PorterStemmer()
