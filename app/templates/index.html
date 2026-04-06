@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>SpamShield — Email Spam Detector</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #0f1117;
+      color: #e0e0e0;
+      min-height: 100vh;
+    }
+
+    /* NAVBAR */
+    nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 18px 48px;
+      background: #161b27;
+      border-bottom: 1px solid #2a2f45;
+    }
+    .nav-logo {
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: #4f8ef7;
+      letter-spacing: 1px;
+    }
+    .nav-logo span { color: #e0e0e0; }
+    .nav-links { display: flex; gap: 28px; }
+    .nav-links a {
+      color: #a0a8c0;
+      text-decoration: none;
+      font-size: 0.9rem;
+      transition: color 0.2s;
+    }
+    .nav-links a:hover { color: #4f8ef7; }
+    .nav-badge {
+      background: #1e3a5f;
+      color: #4f8ef7;
+      padding: 6px 16px;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      border: 1px solid #2a5298;
+    }
+
+    /* HERO */
+    .hero {
+      text-align: center;
+      padding: 64px 24px 32px;
+    }
+    .hero-tag {
+      display: inline-block;
+      background: #1a2744;
+      color: #4f8ef7;
+      padding: 6px 18px;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      margin-bottom: 20px;
+      border: 1px solid #2a4080;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+    .hero h1 {
+      font-size: 2.8rem;
+      font-weight: 800;
+      color: #ffffff;
+      line-height: 1.2;
+      margin-bottom: 16px;
+    }
+    .hero h1 span { color: #4f8ef7; }
+    .hero p {
+      color: #7a8299;
+      font-size: 1rem;
+      max-width: 520px;
+      margin: 0 auto 12px;
+      line-height: 1.6;
+    }
+
+    /* STATS BAR */
+    .stats-bar {
+      display: flex;
+      justify-content: center;
+      gap: 40px;
+      padding: 24px;
+      margin: 0 auto 32px;
+      max-width: 700px;
+    }
+    .stat {
+      text-align: center;
+    }
+    .stat-value {
+      font-size: 1.6rem;
+      font-weight: 700;
+      color: #4f8ef7;
+    }
+    .stat-label {
+      font-size: 0.75rem;
+      color: #5a6280;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    /* MAIN CARD */
+    .main-container {
+      max-width: 780px;
+      margin: 0 auto;
+      padding: 0 24px 60px;
+    }
+    .card {
+      background: #161b27;
+      border: 1px solid #2a2f45;
+      border-radius: 16px;
+      padding: 36px;
+      margin-bottom: 24px;
+    }
+    .card-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+    .card-icon {
+      width: 36px;
+      height: 36px;
+      background: #1a2744;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.1rem;
+    }
+    .card-title {
+      font-size: 1rem;
+      font-weight: 600;
+      color: #ffffff;
+    }
+    .card-subtitle {
+      font-size: 0.8rem;
+      color: #5a6280;
+    }
+
+    /* TEXTAREA */
+    textarea {
+      width: 100%;
+      background: #0f1117;
+      border: 1px solid #2a2f45;
+      border-radius: 10px;
+      padding: 16px;
+      color: #e0e0e0;
+      font-size: 0.95rem;
+      font-family: 'Segoe UI', sans-serif;
+      resize: vertical;
+      min-height: 140px;
+      outline: none;
+      transition: border-color 0.2s;
+      line-height: 1.6;
+    }
+    textarea:focus { border-color: #4f8ef7; }
+    textarea::placeholder { color: #3a4060; }
+
+    /* CHAR COUNT */
+    .char-count {
+      text-align: right;
+      font-size: 0.78rem;
+      color: #3a4060;
+      margin-top: 8px;
+    }
+
+    /* BUTTON */
+    .btn-analyze {
+      width: 100%;
+      padding: 14px;
+      background: linear-gradient(135deg, #2a5298, #4f8ef7);
+      color: white;
+      border: none;
+      border-radius: 10px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      margin-top: 16px;
+      transition: opacity 0.2s, transform 0.1s;
+      letter-spacing: 0.5px;
+    }
+    .btn-analyze:hover { opacity: 0.9; transform: translateY(-1px); }
+    .btn-analyze:active { transform: translateY(0); }
+    .btn-analyze:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    /* EXAMPLES */
+    .examples {
+      margin-top: 16px;
+    }
+    .examples-label {
+      font-size: 0.78rem;
+      color: #5a6280;
+      margin-bottom: 8px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    .example-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .chip {
+      background: #1a1f30;
+      border: 1px solid #2a2f45;
+      color: #7a8299;
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 0.78rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 240px;
+    }
+    .chip:hover {
+      border-color: #4f8ef7;
+      color: #4f8ef7;
+      background: #1a2744;
+    }
+
+    /* RESULT */
+    .result-card {
+      display: none;
+      background: #161b27;
+      border-radius: 16px;
+      padding: 32px;
+      border: 1px solid #2a2f45;
+      animation: fadeIn 0.4s ease;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(12px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .result-verdict {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+    .verdict-icon {
+      width: 56px;
+      height: 56px;
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.6rem;
+      flex-shrink: 0;
+    }
+    .verdict-icon.spam { background: #2d1515; }
+    .verdict-icon.ham { background: #0d2d1a; }
+
+    .verdict-text h2 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+    .verdict-text h2.spam { color: #f74f4f; }
+    .verdict-text h2.ham { color: #4ff77a; }
+    .verdict-text p { color: #5a6280; font-size: 0.88rem; }
+
+    /* PROBABILITY BARS */
+    .prob-section { margin-bottom: 20px; }
+    .prob-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.82rem;
+      margin-bottom: 6px;
+      color: #7a8299;
+    }
+    .prob-bar-bg {
+      background: #0f1117;
+      border-radius: 6px;
+      height: 8px;
+      overflow: hidden;
+      margin-bottom: 12px;
+    }
+    .prob-bar-fill {
+      height: 100%;
+      border-radius: 6px;
+      transition: width 0.8s ease;
+    }
+    .prob-bar-fill.spam { background: linear-gradient(90deg, #7a1515, #f74f4f); }
+    .prob-bar-fill.ham { background: linear-gradient(90deg, #0d5c2a, #4ff77a); }
+
+    /* TECH TAGS */
+    .tech-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 20px;
+      padding-top: 20px;
+      border-top: 1px solid #2a2f45;
+    }
+    .tech-tag {
+      background: #1a1f30;
+      border: 1px solid #2a2f45;
+      color: #5a6280;
+      padding: 4px 12px;
+      border-radius: 12px;
+      font-size: 0.75rem;
+      font-family: 'Courier New', monospace;
+    }
+
+    /* INFO GRID */
+    .info-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-top: 24px;
+    }
+    .info-box {
+      background: #0f1117;
+      border: 1px solid #2a2f45;
+      border-radius: 10px;
+      padding: 16px;
+    }
+    .info-box-title {
+      font-size: 0.75rem;
+      color: #5a6280;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 8px;
+    }
+    .info-box-value {
+      font-size: 0.9rem;
+      color: #a0a8c0;
+      line-height: 1.5;
+    }
+
+    /* LOADING */
+    .loading {
+      display: none;
+      text-align: center;
+      padding: 32px;
+      color: #5a6280;
+    }
+    .spinner {
+      width: 36px;
+      height: 36px;
+      border: 3px solid #2a2f45;
+      border-top-color: #4f8ef7;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin: 0 auto 12px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* FOOTER */
+    footer {
+      text-align: center;
+      padding: 24px;
+      color: #3a4060;
+      font-size: 0.78rem;
+      border-top: 1px solid #1a1f30;
+    }
+    footer span { color: #4f8ef7; }
+  </style>
+</head>
+<body>
+
+  <!-- NAVBAR -->
+  <nav>
+    <div class="nav-logo">Spam<span>Shield</span></div>
+    <div class="nav-links">
+      <a href="#">Documentation</a>
+      <a href="#">About</a>
+      <a href="#">GitHub</a>
+    </div>
+    <div class="nav-badge">ML Powered</div>
+  </nav>
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="hero-tag">Naive Bayes + TF-IDF</div>
+    <h1>Intelligent <span>Spam Detection</span><br/>powered by Machine Learning</h1>
+    <p>Classify messages instantly using a trained Multinomial Naive Bayes model with TF-IDF vectorization.</p>
+  </div>
+
+  <!-- STATS -->
+  <div class="stats-bar">
+    <div class="stat">
+      <div class="stat-value">97%</div>
+      <div class="stat-label">Accuracy</div>
+    </div>
+    <div class="stat">
+      <div class="stat-value">5,572</div>
+      <div class="stat-label">Training Samples</div>
+    </div>
+    <div class="stat">
+      <div class="stat-value">3,000</div>
+      <div class="stat-label">TF-IDF Features</div>
+    </div>
+    <div class="stat">
+      <div class="stat-value">99%</div>
+      <div class="stat-label">Spam Precision</div>
+    </div>
+  </div>
+
+  <!-- MAIN -->
+  <div class="main-container">
+
+    <!-- INPUT CARD -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon">&#9993;</div>
+        <div>
+          <div class="card-title">Message Analyzer</div>
+          <div class="card-subtitle">Paste any email or SMS message below</div>
+        </div>
+      </div>
+
+      <textarea id="messageInput"
+        placeholder="Paste your email or message here to analyze..."></textarea>
+      <div class="char-count"><span id="charCount">0</span> characters</div>
+
+      <button class="btn-analyze" onclick="analyze()">Analyze Message</button>
+
+      <div class="examples">
+        <div class="examples-label">Try an example</div>
+        <div class="example-chips">
+          <div class="chip" onclick="loadExample(this)">
+            Win a FREE iPhone! Click now to claim your prize!
+          </div>
+          <div class="chip" onclick="loadExample(this)">
+            Hey, are we still meeting at 5pm today?
+          </div>
+          <div class="chip" onclick="loadExample(this)">
+            Congratulations! You have been selected for a cash reward of $1000
+          </div>
+          <div class="chip" onclick="loadExample(this)">
+            Can you pick up some groceries on your way home?
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- LOADING -->
+    <div class="loading" id="loading">
+      <div class="spinner"></div>
+      <div>Analyzing message...</div>
+    </div>
+
+    <!-- RESULT CARD -->
+    <div class="result-card" id="resultCard">
+      <div class="result-verdict">
+        <div class="verdict-icon" id="verdictIcon"></div>
+        <div class="verdict-text">
+          <h2 id="verdictText"></h2>
+          <p id="verdictSubtext"></p>
+        </div>
+      </div>
+
+      <div class="prob-section">
+        <div class="prob-label">
+          <span>Spam Probability</span>
+          <span id="spamProbLabel">0%</span>
+        </div>
+        <div class="prob-bar-bg">
+          <div class="prob-bar-fill spam" id="spamBar" style="width:0%"></div>
+        </div>
+
+        <div class="prob-label">
+          <span>Ham Probability</span>
+          <span id="hamProbLabel">0%</span>
+        </div>
+        <div class="prob-bar-bg">
+          <div class="prob-bar-fill ham" id="hamBar" style="width:0%"></div>
+        </div>
+      </div>
+
+      <div class="info-grid">
+        <div class="info-box">
+          <div class="info-box-title">Algorithm</div>
+          <div class="info-box-value">Multinomial Naive Bayes</div>
+        </div>
+        <div class="info-box">
+          <div class="info-box-title">Vectorization</div>
+          <div class="info-box-value">TF-IDF (3000 features)</div>
+        </div>
+        <div class="info-box">
+          <div class="info-box-title">Preprocessing</div>
+          <div class="info-box-value">Stemming + Stopword Removal</div>
+        </div>
+        <div class="info-box">
+          <div class="info-box-title">Training Dataset</div>
+          <div class="info-box-value">SMS Spam Collection (UCI)</div>
+        </div>
+      </div>
+
+      <div class="tech-tags">
+        <span class="tech-tag">Python 3.13</span>
+        <span class="tech-tag">scikit-learn</span>
+        <span class="tech-tag">nltk</span>
+        <span class="tech-tag">Flask</span>
+        <span class="tech-tag">TF-IDF</span>
+        <span class="tech-tag">Naive Bayes</span>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- FOOTER -->
+  <footer>
+    Built by <span>Tanmoy Maiti, Soumyadeep Garai, Shipra Samanta, Saurashis Baral</span>
+    &nbsp;|&nbsp; Powered by Machine Learning
+  </footer>
+
+  <script>
+    const textarea = document.getElementById('messageInput');
+    const charCount = document.getElementById('charCount');
+
+    textarea.addEventListener('input', () => {
+      charCount.textContent = textarea.value.length;
+    });
+
+    function loadExample(chip) {
+      textarea.value = chip.textContent.trim();
+      charCount.textContent = textarea.value.length;
+    }
+
+    async function analyze() {
+      const message = textarea.value.trim();
+      if (!message) {
+        textarea.focus();
+        return;
+      }
+
+      document.getElementById('resultCard').style.display = 'none';
+      document.getElementById('loading').style.display = 'block';
+      document.querySelector('.btn-analyze').disabled = true;
+
+      try {
+        const response = await fetch('/predict', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ message })
+        });
+
+        const data = await response.json();
+
+        document.getElementById('loading').style.display = 'none';
+        document.querySelector('.btn-analyze').disabled = false;
+
+        const isSpam = data.prediction === 'spam';
+        const resultCard = document.getElementById('resultCard');
+
+        document.getElementById('verdictIcon').className =
+          'verdict-icon ' + (isSpam ? 'spam' : 'ham');
+        document.getElementById('verdictIcon').textContent =
+          isSpam ? '🚨' : '✅';
+
+        document.getElementById('verdictText').className =
+          isSpam ? 'spam' : 'ham';
+        document.getElementById('verdictText').textContent =
+          isSpam ? 'SPAM DETECTED' : 'LEGITIMATE MESSAGE';
+
+        document.getElementById('verdictSubtext').textContent =
+          isSpam
+            ? 'This message shows strong indicators of spam content.'
+            : 'This message appears to be a legitimate communication.';
+
+        document.getElementById('spamProbLabel').textContent =
+          data.spam_probability + '%';
+        document.getElementById('hamProbLabel').textContent =
+          data.ham_probability + '%';
+
+        setTimeout(() => {
+          document.getElementById('spamBar').style.width =
+            data.spam_probability + '%';
+          document.getElementById('hamBar').style.width =
+            data.ham_probability + '%';
+        }, 100);
+
+        resultCard.style.display = 'block';
+
+      } catch (err) {
+        document.getElementById('loading').style.display = 'none';
+        document.querySelector('.btn-analyze').disabled = false;
+        alert('Something went wrong. Make sure the Flask server is running.');
+      }
+    }
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,48 @@
+A system that reads an email/message and decides: Spam or Not Spam (Ham)?
+Under the hood, this is a binary text classification 
+problem. The computer doesn't "read" — it converts 
+text into numbers, finds patterns, and learns to 
+distinguish spam from ham.
+
+Phase 1 — Data
+Get a labeled dataset of emails (spam/ham). 
+We'll use the famous SMS Spam Collection dataset 
+(works for both SMS & email-style messages).
+
+Phase 2 — Text Preprocessing
+Raw text is messy. We'll clean it: remove punctuation,
+ lowercase everything, remove "stopwords" 
+ (like the, is, and), and apply stemming/lemmatization
+  (reducing words to their root form).
+
+Phase 3 — Feature Extraction
+Convert cleaned text → numbers the model can learn 
+from. The key technique here is TF-IDF (Term Frequency
+–Inverse Document Frequency). I'll explain this deeply
+ when we get there — it's the heart of the project.
+
+Phase 4 — Model Training
+We'll train a Naïve Bayes classifier — the
+ historically gold-standard algorithm for spam
+  detection, and for good reason. Later you can
+   compare it with Logistic Regression or SVM.
+
+Phase 5 — Evaluation
+Accuracy alone is misleading for spam (why? I'll
+ explain). We'll use Precision, Recall, F1-Score,
+  and a Confusion Matrix.
+
+Phase 6 — Web App
+Wrap everything in a clean Flask web app where
+ you type a message and get a real-time prediction.
+
+Concept                  Why It Matters
+TF-IDF                   How machines "understand" text importance
+Naïve Bayes              Probabilistic reasoning under the hood
+Precision vs Recall      Why accuracy is a lie in imbalanced datasets
+Vectorization            The bridge between language and math
+Pickle/Joblib            Saving trained models for reuse
+
+What used
+Tools: Python, a code editor (VS Code recommended), browser
+Libraries: pandas, scikit-learn, nltk, flask, matplotlib
